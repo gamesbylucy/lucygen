@@ -1,4 +1,7 @@
 sceneSetups:
 - path: Assets/Demo.unity
+  isLoaded: 0
+  isActive: 0
+- path: Assets/Cubesphere/Cube Sphere Scene.unity
   isLoaded: 1
   isActive: 1

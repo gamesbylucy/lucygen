@@ -9,10 +9,10 @@ namespace Assets.Map
 {
     public class Map
     {
-        private int _pointCount = 500;
+        private int _pointCount = 2560;
         float _lakeThreshold = 0.3f;
-        public const float Width = 50;
-        public const float Height = 50;
+        public const float Width = 128;
+        public const float Height = 80;
         const int NUM_LLOYD_RELAXATIONS = 2;
         
         public Graph Graph { get; private set; }
@@ -38,11 +38,6 @@ namespace Assets.Map
             var voronoi = new Voronoi(points, colors, new Rect(0, 0, Width, Height));
             
             Graph = new Graph(points, voronoi, (int)Width, (int)Height, _lakeThreshold);
-        }
-
-        internal void Click(Vector2 point)
-        {
-            SelectedCenter = Graph.centers.FirstOrDefault(p => p.PointInside(point.x, point.y));
         }
     }
 }

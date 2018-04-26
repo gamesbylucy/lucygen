@@ -41,7 +41,6 @@ namespace Assets.Map
             texture.Apply();
 
             plane.GetComponent<Renderer>().material.mainTexture = texture;
-            plane.transform.localPosition = new Vector3(Map.Width / 2, Map.Height / 2, 1);
         }
 
         private void DrawLine(Texture2D texture, float x0, float y0, float x1, float y1, Color color)

@@ -1,7 +1,4 @@
 sceneSetups:
-- path: Assets/Demo.unity
-  isLoaded: 0
-  isActive: 0
-- path: Assets/Cubesphere/Cube Sphere Scene.unity
+- path: Assets/lucygen_planet_testing.unity
   isLoaded: 1
   isActive: 1

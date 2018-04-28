@@ -25,6 +25,7 @@ public class Main : MonoBehaviour
 
 	void Awake ()
 	{
+
         IslandShape.PERLIN_CHECK_VALUE = PerlinCheckValue;
 
         Random.InitState(Seed);

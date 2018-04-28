@@ -1,16 +1,19 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
+using Delaunay;
+using Delaunay.Geo;
+using System.Linq;
+using Assets.Map;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-public class CubeSphere : MonoBehaviour {
+public class CubeSphereExperimental : MonoBehaviour {
 
-	public int gridSize;
-
+    public int gridSize;
 	public float radius = 1f;
 
 	private Mesh mesh;
 	private Vector3[] vertices;
 	private Vector3[] normals;
-	private Color32[] cubeUV;
 
 	private void Awake () {
 		Generate();
@@ -22,22 +25,28 @@ public class CubeSphere : MonoBehaviour {
 		CreateVertices();
 		CreateTriangles();
 		CreateColliders();
-	}
+    }
 
 	private void CreateVertices () {
+
 		int cornerVertices = 8;
+
 		int edgeVertices = (gridSize + gridSize + gridSize - 3) * 4;
+
 		int faceVertices = (
 			(gridSize - 1) * (gridSize - 1) +
 			(gridSize - 1) * (gridSize - 1) +
 			(gridSize - 1) * (gridSize - 1)) * 2;
+
 		vertices = new Vector3[cornerVertices + edgeVertices + faceVertices];
+
 		normals = new Vector3[vertices.Length];
-		cubeUV = new Color32[vertices.Length];
 
-		int v = 0;
+        Mesh mesh = GetComponent<MeshFilter>().mesh;
 
-        //assigns the location of the vertices of the sides of the cube
+        int v = 0;
+
+        //SET SIDES OF CUBE
 		for (int y = 0; y <= gridSize; y++) {
 			for (int x = 0; x <= gridSize; x++) {
 				SetVertex(v++, x, y, 0);
@@ -53,31 +62,43 @@ public class CubeSphere : MonoBehaviour {
 			}
 		}
 
-        //sets the locations of the vertices for the top of the cube
+        //SET TOP OF CUBE
 		for (int z = 1; z < gridSize; z++) {
 			for (int x = 1; x < gridSize; x++) {
 				SetVertex(v++, x, gridSize, z);
 			}
 		}
 
-        //sets the locations of the vertices for the bottom of the cube
+        //SET BOTTOM OF CUBE
 		for (int z = 1; z < gridSize; z++) {
 			for (int x = 1; x < gridSize; x++) {
 				SetVertex(v++, x, 0, z);
 			}
 		}
 
-
         //assigns the vertices to the mesh
-		mesh.vertices = vertices;
-
-
+        mesh.vertices = vertices;
 		mesh.normals = normals;
-		mesh.colors32 = cubeUV;
-	}
+    }
 
 	private void SetVertex (int i, int x, int y, int z) {
+
+        //CONVERT THE COORDINATES TO A VECTOR3 POINT IN 3D SPACE ON A UNIT CUBE
+        //The unit cube has 8 quadrants, all permutations on positive and negative
+        //values of the x, y, and z axis. The new vector 3 is scaled to twice the
+        //input value, which is the side length of the unit cube containing the
+        //resultant cubesphere. The elements of the vector are then divided by
+        //the grid size, which scales the components of the vector down to whatever
+        //the grid size has been determined to be. Finally, vector [1,1,1] is
+        //subtracted from the resultant vector to move the point to its proper
+        //location on the surface of the unit cube. If [1,1,1] was not subtracted
+        //from the vector, the resulting cube would be completely in positive vector
+        //space and the origin of the cubesphere would not be on the world origin.
+
 		Vector3 v = new Vector3(x, y, z) * 2f / gridSize - Vector3.one;
+
+        //MUTATE THE VECTOR3 TO FORM THE POINT ON THE CUBESPHERE
+        //
 		float x2 = v.x * v.x;
 		float y2 = v.y * v.y;
 		float z2 = v.z * v.z;
@@ -87,8 +108,7 @@ public class CubeSphere : MonoBehaviour {
 		s.z = v.z * Mathf.Sqrt(1f - x2 / 2f - y2 / 2f + x2 * y2 / 3f);
 		normals[i] = s;
 		vertices[i] = normals[i] * radius;
-		cubeUV[i] = new Color32((byte)x, (byte)y, (byte)z, 0);
-	}
+    }
 
 	private void CreateTriangles () {
 		int[] trianglesZ = new int[(gridSize * gridSize) * 12];

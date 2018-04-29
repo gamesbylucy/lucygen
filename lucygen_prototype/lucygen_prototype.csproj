@@ -328,8 +328,11 @@
     <Compile Include="Assets\Scripts\Legacy\Map\IslandShape.cs" />
     <Compile Include="Assets\Scripts\Legacy\Map\Map.cs" />
     <Compile Include="Assets\Scripts\Legacy\Map\MapTexture.cs" />
+    <Compile Include="Assets\Scripts\Planet\LucygenEdge.cs" />
+    <Compile Include="Assets\Scripts\Planet\LucygenEdgeSet.cs" />
     <Compile Include="Assets\Scripts\Planet\LucygenPlanet.cs" />
     <Compile Include="Assets\Scripts\Planet\LucygenPolygon.cs" />
+    <Compile Include="Assets\Scripts\Planet\LucygenPolygonSet.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
     <Compile Include="Assets\Scripts\PseudoGravityAttractor.cs" />
     <Compile Include="Assets\Scripts\PseudoGravityBody.cs" />
@@ -351,6 +354,7 @@
     <Compile Include="Assets\Scripts\Unity-delaunay\geom\Polygon.cs" />
     <Compile Include="Assets\Scripts\Unity-delaunay\geom\Winding.cs" />
     <Compile Include="Assets\Scripts\Unity-delaunay\utils\IDisposable.cs" />
+    <Compile Include="Assets\Sun.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Scripts\Legacy\Cubesphere\Rounded Cube Grid.shader" />

@@ -7,10 +7,17 @@ public class LucygenPlanet : MonoBehaviour {
 
     public int subdivisions;
     public int size;
+    public Sun sun;
+    public float percentMountain;
+    public float percentHills;
+    public float percentPlains;
+    public float percentValleys;
+    public float percentCanyons;
 
     private List<LucygenPolygon> m_LucygenPolygons;
     private List<Vector3> m_VerticesList;
     private Mesh m_mesh;
+    private string docstring;
 
     public void Awake()
     {
@@ -20,10 +27,82 @@ public class LucygenPlanet : MonoBehaviour {
     public void Start()
     {
         GetComponent<MeshFilter>().mesh = m_mesh = new Mesh();
-        Debug.Log("Initiating planet generation.");
         InitAsIcosohedron(size);
         Subdivide(subdivisions);
         List<Vector3> tempVertices = new List<Vector3>();
+
+        LucygenPolygonSet hills = new LucygenPolygonSet();
+        LucygenPolygonSet mountains = new LucygenPolygonSet();
+        LucygenPolygonSet plains = new LucygenPolygonSet();
+        LucygenPolygonSet valleys = new LucygenPolygonSet();
+        LucygenPolygonSet canyons = new LucygenPolygonSet();
+
+        int numMountains = (int)(percentMountain * (float)m_LucygenPolygons.Count);
+        int numHills = (int)(percentHills * (float)m_LucygenPolygons.Count);
+        int numPlains = (int)(percentPlains * (float)m_LucygenPolygons.Count);
+        int numValleys = (int)(percentValleys * (float)m_LucygenPolygons.Count);
+        int numCanyons = (int)(percentCanyons * (float)m_LucygenPolygons.Count);
+        int sum = numMountains + numHills + numPlains + numValleys + numCanyons;
+
+        docstring += ("Sum of polys: " + sum + "\n" + "Mountain polys: " + numMountains + "\n" +
+            "Hill polys: " + numHills + "\n" + "Plains polys: " + numPlains + "\n" + "Valley polys: " 
+            + numValleys + "\n" + "Canyon polys: " + numCanyons + "\n");
+
+        foreach (LucygenPolygon polygon in m_LucygenPolygons)
+        {
+            if (sum > m_LucygenPolygons.Count)
+            {
+                numPlains = numPlains - (m_LucygenPolygons.Count - sum);
+            }
+            else if (sum < m_LucygenPolygons.Count)
+            {
+                numPlains = numValleys - (m_LucygenPolygons.Count - sum);
+            }
+
+            List<LucygenPolygon> assigned = new List<LucygenPolygon>();
+
+            while (sum > 0)
+            {
+                int index = Random.Range(0, m_LucygenPolygons.Count);
+
+                LucygenPolygon current = m_LucygenPolygons[index];
+
+                if (!(assigned.Contains(current)))
+                {
+                    if(numMountains > 0)
+                    {
+                        mountains.Add(current);
+                        numMountains--;
+                    }
+                    else if(numHills > 0)
+                    {
+                        hills.Add(current);
+                        numHills--;
+                    }
+                    else if(numPlains > 0)
+                    {
+                        plains.Add(current);
+                        numPlains--;
+                    }
+                    else if(numValleys > 0)
+                    {
+                        valleys.Add(current);
+                        numValleys--;
+                    }
+                    else if(numCanyons > 0)
+                    {
+                        canyons.Add(current);
+                        numCanyons--;
+                    }
+                    sum--;
+                }
+            }
+        }
+
+        extrude(mountains, .1f);
+        extrude(hills, .05f);
+        extrude(valleys, -.05f);
+        extrude(canyons, -.1f);
 
         foreach (Vector3 vertex in m_VerticesList)
         {
@@ -31,22 +110,39 @@ public class LucygenPlanet : MonoBehaviour {
             tempVertices.Add(newVertex);
         }
 
+        
+
         m_VerticesList = tempVertices;
-        Debug.Log("Creating vertex array.");
         m_mesh.vertices = m_VerticesList.ToArray();
-        m_mesh.triangles = new int[m_VerticesList.Count];
-        buildTriangles(m_LucygenPolygons, m_mesh.triangles);
-        for (int i = 0; i < m_mesh.triangles.Length - 1; i++)
+        m_mesh.triangles = new int[m_LucygenPolygons.Count * 3];
+        m_mesh.triangles = buildTriangles(m_LucygenPolygons, m_mesh.triangles);
+
+        m_mesh.RecalculateNormals();
+
+        docstring += ("Number of Polys: " + m_LucygenPolygons.Count + "\n" + 
+            "Triangles array length: " + m_mesh.triangles.Length + "\n" + 
+            "Vertices array length: " + m_mesh.vertices.Length + "\n" +
+            "Normals array length: " + m_mesh.normals.Length);
+
+        for (int i = 0; i < m_mesh.triangles.Length; i++)
         {
-            Debug.Log(m_mesh.triangles[i]);
+            docstring += m_mesh.triangles[i] + " ";
+            if ((i + 1) % 3 == 0)
+                docstring += "\n";
         }
+        Debug.Log(docstring);
+    }
+
+    private void Update()
+    {
+        transform.RotateAround(sun.transform.position, Vector3.up, 20 * Time.deltaTime);
+        transform.RotateAround(transform.position, transform.up, 20 * Time.deltaTime);
     }
 
     //generation methods
 
     public void InitAsIcosohedron(float size)
     {
-        Debug.Log("Creating initial vertices.");
         m_LucygenPolygons = new List<LucygenPolygon>();
         m_VerticesList = new List<Vector3>();
 
@@ -55,7 +151,7 @@ public class LucygenPlanet : MonoBehaviour {
         // formula for calculating them is kind of
         // symmetrical too:
 
-        float t = (1.0f + Mathf.Sqrt(0.5f)) / 2.0f;
+        float t = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;
 
         m_VerticesList.Add(new Vector3(-1.0f, t, 0).normalized);
         m_VerticesList.Add(new Vector3(1.0f, t, 0).normalized);
@@ -104,9 +200,9 @@ public class LucygenPlanet : MonoBehaviour {
             var newPolys = new List<LucygenPolygon>();
             foreach (var poly in m_LucygenPolygons)
             {
-                int a = poly.m_Vertices[0];
-                int b = poly.m_Vertices[1];
-                int c = poly.m_Vertices[2];
+                int a = poly.m_vertices[0];
+                int b = poly.m_vertices[1];
+                int c = poly.m_vertices[2];
                 // Use GetMidPointIndex to either create a
                 // new vertex between two old vertices, or
                 // find the one that was already created.
@@ -158,27 +254,161 @@ public class LucygenPlanet : MonoBehaviour {
         return ret;
     }
 
-    //takes the indices stored in each polygon and copies them, in order, into a list of triangle points
-    public void buildTriangles(List<LucygenPolygon> polygons, int[] trianglePoints)
+    public void calculatePolygonNeighbors()
     {
-        //for every polygon
-        int i = 0;
-        //for each point in the polygon
-        for (int j = 0; j < polygons.Count; j++)
+        foreach (LucygenPolygon polygon in m_LucygenPolygons)
         {
-            for (int k = 0; k < polygons[j].m_Vertices.Count; k++)
+            foreach (LucygenPolygon otherPolygon in m_LucygenPolygons)
             {
-                Debug.Log("Copying point " + polygons[j].m_Vertices[k] + " into triangle index " + i + ".");
-                trianglePoints[i] = polygons[j].m_Vertices[k];
-                if (i < trianglePoints.Length - 1)
+                if (polygon == otherPolygon)
+                    continue;
+                if (polygon.isNeighborOf(otherPolygon))
                 {
-                    i++;
+                    polygon.m_neighbors.Add(otherPolygon);
                 }
             }
         }
     }
 
-    private void OnDrawGizmos()
+    public List<int> cloneVertices(List<int> oldVerts)
+    {
+        List<int> newVerts = new List<int>();
+
+        foreach (int oldVert in oldVerts)
+        {
+            Vector3 clonedVert = new Vector3(m_VerticesList[oldVert].x, m_VerticesList[oldVert].y, m_VerticesList[oldVert].z);
+            newVerts.Add(m_VerticesList.Count);
+            m_VerticesList.Add(clonedVert);
+        }
+        return newVerts;
+    }
+
+    public void StitchPolygons(LucygenPolygonSet polys)
+    {
+        LucygenEdgeSet oldEdges = polys.createEdgeSet();
+        List<int> oldVertices = oldEdges.GetUniqueVertices();
+        List<int> newVertices = cloneVertices(oldVertices);
+        LucygenEdgeSet newEdges = oldEdges.clone();
+
+        for (int i = 0; i < oldEdges.Count; i++)
+        {
+            LucygenEdge oldEdge = oldEdges[i];
+            LucygenEdge newEdge = newEdges[i];
+
+            //Make sure that the vertices in newEdge
+            //are the ones we recently cloned, instead
+            //of the old vertices.
+
+            for (int j = 0; j < 2; j++)
+            {
+                int oldVertex = oldEdge.m_sharedVertices[j];
+                int index = oldVertices.IndexOf(oldVertex);
+                newEdge.m_sharedVertices[j] = newVertices[index];
+            }
+
+            //Create new polys along the stitched edge. These
+            //will connect the original poly to its former neighbor.
+
+            LucygenPolygon stitchPoly1 = new LucygenPolygon(oldEdge.m_sharedVertices[0],
+                                                            oldEdge.m_sharedVertices[1],
+                                                            oldEdge.m_sharedVertices[0]);
+
+            LucygenPolygon stitchPoly2 = new LucygenPolygon(oldEdge.m_sharedVertices[1],
+                                                            oldEdge.m_sharedVertices[1],
+                                                            oldEdge.m_sharedVertices[0]);
+
+            oldEdge.m_innerPolygon.ReplaceNeighbor(oldEdge.m_outerPolygon, stitchPoly2);
+            oldEdge.m_outerPolygon.ReplaceNeighbor(oldEdge.m_innerPolygon, stitchPoly1);
+
+            m_LucygenPolygons.Add(stitchPoly1);
+            m_LucygenPolygons.Add(stitchPoly2);
+        }
+
+        //Swap to the new vertices on the inner polys.
+
+        foreach (LucygenPolygon poly in polys)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                int vertID = poly.m_vertices[i];
+                if (!oldVertices.Contains(vertID))
+                    continue;
+
+                int vertIndex = oldVertices.IndexOf(vertID);
+                poly.m_vertices[i] = newVertices[vertIndex];
+            }
+        }
+    }
+
+    public void extrude(LucygenPolygonSet polys, float height)
+    {
+        StitchPolygons(polys);
+
+        List<int> verts = polys.getUniqueVertices();
+
+        foreach (int vert in verts)
+        {
+            Vector3 v = m_VerticesList[vert];
+
+            v = v.normalized * (v.magnitude + height);
+
+            m_VerticesList[vert] = v;
+        }
+    }
+
+    public void inset(LucygenPolygonSet polys, float interpolation)
+    {
+        StitchPolygons(polys);
+
+        List<int> verts = polys.getUniqueVertices();
+
+        //Calculate the average center of all the vertices
+        //in these polygons.
+
+        Vector3 center = Vector3.zero;
+
+        foreach (int vert in verts)
+            center += m_VerticesList[vert];
+
+        center /= verts.Count;
+
+        //Pull each vertex towards the center, then correct
+        //its height so that it's as far from the center of
+        //the planet as it was before.
+
+        foreach (int vert in verts)
+        {
+            Vector3 v = m_VerticesList[vert];
+
+            float height = v.magnitude;
+
+            v = Vector3.Lerp(v, center, interpolation);
+
+            v = v.normalized * height;
+
+            m_VerticesList[vert] = v;
+        }
+    }
+
+    //takes the indices stored in each polygon and copies them, in order, into a list of triangle points
+    public int[] buildTriangles(List<LucygenPolygon> polygons, int[] trianglePoints)
+    { 
+        for (int i = 0; i < m_LucygenPolygons.Count * 3;)
+        {
+            for (int j = 0; j < polygons.Count; j++)
+            {
+                for (int k = 0; k < polygons[j].m_vertices.Count; k++)
+                {
+                    trianglePoints[i++] = polygons[j].m_vertices[k];
+                }
+            }
+        }
+        return trianglePoints;
+    }
+
+
+
+    /*private void OnDrawGizmos()
     {
         if (m_VerticesList != null && m_VerticesList.Count > 0)
         {
@@ -187,5 +417,61 @@ public class LucygenPlanet : MonoBehaviour {
                 Gizmos.DrawSphere(vertex, 0.005f);
             }
         }
+    }*/
+
+    //LEGACY
+
+    public Vector3[] buildNormals(List<LucygenPolygon> polygons)
+    {
+        List<Vector3> result = new List<Vector3>();
+        foreach (LucygenPolygon polygon in polygons)
+        {
+            for (int i = 0; i < polygon.m_vertices.Count; i++)
+            {
+                Vector3 a;
+                Vector3 b;
+                Vector3 c;
+                Vector3 side1;
+                Vector3 side2;
+                Vector3 perp;
+                switch (i)
+                {
+
+                    case 0:
+                        a = m_mesh.vertices[polygon.m_vertices[0]];
+                        b = m_mesh.vertices[polygon.m_vertices[1]];
+                        c = m_mesh.vertices[polygon.m_vertices[2]];
+                        side1 = b - a;
+                        side2 = c - a;
+                        perp = Vector3.Cross(side1, side2);
+                        if (!result.Contains(perp))
+                            result.Add(perp);
+                        break;
+                    case 1:
+                        a = m_mesh.vertices[polygon.m_vertices[1]];
+                        b = m_mesh.vertices[polygon.m_vertices[2]];
+                        c = m_mesh.vertices[polygon.m_vertices[0]];
+                        side1 = b - a;
+                        side2 = c - a;
+                        perp = Vector3.Cross(side1, side2);
+                        if (!result.Contains(perp))
+                            result.Add(perp);
+                        break;
+                    case 2:
+                        a = m_mesh.vertices[polygon.m_vertices[2]];
+                        b = m_mesh.vertices[polygon.m_vertices[0]];
+                        c = m_mesh.vertices[polygon.m_vertices[1]];
+                        side1 = b - a;
+                        side2 = c - a;
+                        perp = Vector3.Cross(side1, side2);
+                        if (!result.Contains(perp))
+                            result.Add(perp);
+                        break;
+                }
+
+            }
+        }
+        Debug.Log("Number of calculated normals: " + result.Count);
+        return result.ToArray();
     }
 }

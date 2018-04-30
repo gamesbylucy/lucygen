@@ -14,7 +14,7 @@ public class LucygenPlanet : MonoBehaviour {
     public float percentValleys;
     public float percentCanyons;
 
-    private List<LucygenPolygon> m_LucygenPolygons;
+    private LucygenPolygonSet m_LucygenPolygons;
     private List<Vector3> m_VerticesList;
     private Mesh m_mesh;
     private string docstring;
@@ -59,43 +59,38 @@ public class LucygenPlanet : MonoBehaviour {
                 numPlains = numValleys - (m_LucygenPolygons.Count - sum);
             }
 
-            List<LucygenPolygon> assigned = new List<LucygenPolygon>();
-
             while (sum > 0)
             {
                 int index = Random.Range(0, m_LucygenPolygons.Count);
 
                 LucygenPolygon current = m_LucygenPolygons[index];
 
-                if (!(assigned.Contains(current)))
+                if(numMountains > 0)
                 {
-                    if(numMountains > 0)
-                    {
-                        mountains.Add(current);
-                        numMountains--;
-                    }
-                    else if(numHills > 0)
-                    {
-                        hills.Add(current);
-                        numHills--;
-                    }
-                    else if(numPlains > 0)
-                    {
-                        plains.Add(current);
-                        numPlains--;
-                    }
-                    else if(numValleys > 0)
-                    {
-                        valleys.Add(current);
-                        numValleys--;
-                    }
-                    else if(numCanyons > 0)
-                    {
-                        canyons.Add(current);
-                        numCanyons--;
-                    }
-                    sum--;
+                    mountains.Add(current);
+                    numMountains--;
                 }
+                else if(numHills > 0)
+                {
+                    hills.Add(current);
+                    numHills--;
+                }
+                else if(numPlains > 0)
+                {
+                    plains.Add(current);
+                    numPlains--;
+                }
+                else if(numValleys > 0)
+                {
+                    valleys.Add(current);
+                    numValleys--;
+                }
+                else if(numCanyons > 0)
+                {
+                    canyons.Add(current);
+                    numCanyons--;
+                }
+                sum--;
             }
         }
 
@@ -143,7 +138,7 @@ public class LucygenPlanet : MonoBehaviour {
 
     public void InitAsIcosohedron(float size)
     {
-        m_LucygenPolygons = new List<LucygenPolygon>();
+        m_LucygenPolygons = new LucygenPolygonSet();
         m_VerticesList = new List<Vector3>();
 
         // An icosahedron has 12 vertices, and
@@ -197,7 +192,7 @@ public class LucygenPlanet : MonoBehaviour {
 
         for (int i = 0; i < recursions; i++)
         {
-            var newPolys = new List<LucygenPolygon>();
+            var newPolys = new LucygenPolygonSet();
             foreach (var poly in m_LucygenPolygons)
             {
                 int a = poly.m_vertices[0];

@@ -300,7 +300,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 942a0b0de6c91784cad7b1773941d453, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  subdivisions: 5
+  subdivisions: 4
   size: 1
   sun: {fileID: 1687865713}
   percentMountain: 0.001

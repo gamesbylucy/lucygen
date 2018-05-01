@@ -303,11 +303,6 @@ MonoBehaviour:
   subdivisions: 4
   size: 1
   sun: {fileID: 1687865713}
-  percentMountain: 0.001
-  percentHills: 0.001
-  percentPlains: 0.977
-  percentValleys: 0.1
-  percentCanyons: 0.1
 --- !u!23 &1979098456
 MeshRenderer:
   m_ObjectHideFlags: 0

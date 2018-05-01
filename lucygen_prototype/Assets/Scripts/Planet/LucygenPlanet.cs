@@ -8,16 +8,12 @@ public class LucygenPlanet : MonoBehaviour {
     public int subdivisions;
     public int size;
     public Sun sun;
-    public float percentMountain;
-    public float percentHills;
-    public float percentPlains;
-    public float percentValleys;
-    public float percentCanyons;
 
     private LucygenPolygonSet m_LucygenPolygons;
     private List<Vector3> m_VerticesList;
     private Mesh m_mesh;
     private string docstring;
+    private LucygenPerlin perlin;
 
     public void Awake()
     {
@@ -30,74 +26,21 @@ public class LucygenPlanet : MonoBehaviour {
         InitAsIcosohedron(size);
         Subdivide(subdivisions);
         List<Vector3> tempVertices = new List<Vector3>();
+        perlin = new LucygenPerlin();
 
-        LucygenPolygonSet hills = new LucygenPolygonSet();
-        LucygenPolygonSet mountains = new LucygenPolygonSet();
-        LucygenPolygonSet plains = new LucygenPolygonSet();
-        LucygenPolygonSet valleys = new LucygenPolygonSet();
-        LucygenPolygonSet canyons = new LucygenPolygonSet();
-
-        int numMountains = (int)(percentMountain * (float)m_LucygenPolygons.Count);
-        int numHills = (int)(percentHills * (float)m_LucygenPolygons.Count);
-        int numPlains = (int)(percentPlains * (float)m_LucygenPolygons.Count);
-        int numValleys = (int)(percentValleys * (float)m_LucygenPolygons.Count);
-        int numCanyons = (int)(percentCanyons * (float)m_LucygenPolygons.Count);
-        int sum = numMountains + numHills + numPlains + numValleys + numCanyons;
-
-        docstring += ("Sum of polys: " + sum + "\n" + "Mountain polys: " + numMountains + "\n" +
-            "Hill polys: " + numHills + "\n" + "Plains polys: " + numPlains + "\n" + "Valley polys: " 
-            + numValleys + "\n" + "Canyon polys: " + numCanyons + "\n");
-
-        foreach (LucygenPolygon polygon in m_LucygenPolygons)
+        foreach (LucygenPolygon poly in m_LucygenPolygons)
         {
-            if (sum > m_LucygenPolygons.Count)
-            {
-                numPlains = numPlains - (m_LucygenPolygons.Count - sum);
-            }
-            else if (sum < m_LucygenPolygons.Count)
-            {
-                numPlains = numValleys - (m_LucygenPolygons.Count - sum);
-            }
-
-            while (sum > 0)
-            {
-                int index = Random.Range(0, m_LucygenPolygons.Count);
-
-                LucygenPolygon current = m_LucygenPolygons[index];
-
-                if(numMountains > 0)
-                {
-                    mountains.Add(current);
-                    numMountains--;
-                }
-                else if(numHills > 0)
-                {
-                    hills.Add(current);
-                    numHills--;
-                }
-                else if(numPlains > 0)
-                {
-                    plains.Add(current);
-                    numPlains--;
-                }
-                else if(numValleys > 0)
-                {
-                    valleys.Add(current);
-                    numValleys--;
-                }
-                else if(numCanyons > 0)
-                {
-                    canyons.Add(current);
-                    numCanyons--;
-                }
-                sum--;
-            }
+            Vector3 vert1 = m_VerticesList[poly.m_vertices[0]];
+            Vector3 vert2 = m_VerticesList[poly.m_vertices[1]];
+            Vector3 vert3 = m_VerticesList[poly.m_vertices[2]];
+            float centerX = (1.0f / 3.0f) * (vert1.x + vert2.x + vert3.x);
+            float centerY = (1.0f / 3.0f) * (vert1.y + vert2.y + vert3.y);
+            float centerZ = (1.0f / 3.0f) * (vert1.z + vert2.z + vert3.z);
+            Vector3 center = new Vector3(centerX, centerY, centerZ);
+            LucygenPolygonSet set = new LucygenPolygonSet();
+            set.Add(poly);
+            extrude(set, (float)perlin.OctavePerlin(centerX, centerY, centerZ, 24, .5));
         }
-
-        extrude(mountains, .1f);
-        extrude(hills, .05f);
-        extrude(valleys, -.05f);
-        extrude(canyons, -.1f);
 
         foreach (Vector3 vertex in m_VerticesList)
         {

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LucgenPerlin {
+public class LucygenPerlin {
 
         public int repeat;
 
-        public Perlin(int repeat = -1)
+        public LucygenPerlin(int repeat = -1)
         {
             this.repeat = repeat;
         }
@@ -49,7 +49,7 @@ public class LucgenPerlin {
 
         private static readonly int[] p;            // Doubled permutation to avoid overflow
 
-        static Perlin()
+        static LucygenPerlin()
         {
             p = new int[512];
             for (int x = 0; x < 512; x++)
@@ -105,7 +105,8 @@ public class LucgenPerlin {
                           u);
             y2 = lerp(x1, x2, v);
 
-            return (lerp(y1, y2, w) + 1) / 2;   // For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
+            Debug.Log("Output of the perlin function: " + (lerp(y1, y2, w) + 1) / 2);
+            return Mathf.Clamp((float)(lerp(y1, y2, w) + 1) / 2, -.005f, .005f);   // For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
         }
 
         public int inc(int num)

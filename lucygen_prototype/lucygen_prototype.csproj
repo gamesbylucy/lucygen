@@ -328,6 +328,7 @@
     <Compile Include="Assets\Scripts\Legacy\Map\IslandShape.cs" />
     <Compile Include="Assets\Scripts\Legacy\Map\Map.cs" />
     <Compile Include="Assets\Scripts\Legacy\Map\MapTexture.cs" />
+    <Compile Include="Assets\Scripts\Planet\LucgenPerlin.cs" />
     <Compile Include="Assets\Scripts\Planet\LucygenEdge.cs" />
     <Compile Include="Assets\Scripts\Planet\LucygenEdgeSet.cs" />
     <Compile Include="Assets\Scripts\Planet\LucygenPlanet.cs" />

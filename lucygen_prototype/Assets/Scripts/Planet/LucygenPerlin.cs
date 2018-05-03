@@ -14,15 +14,15 @@ public class LucygenPerlin {
         public double OctavePerlin(double x, double y, double z, int octaves, double persistence)
         {
             double total = 0;
-            double frequency = 1;
-            double amplitude = 1;
+            double frequency = 4;
+            double amplitude = 128;
             double maxValue = 0;            // Used for normalizing result to 0.0 - 1.0
+
             for (int i = 0; i < octaves; i++)
             {
                 total += perlin(x * frequency, y * frequency, z * frequency) * amplitude;
 
                 maxValue += amplitude;
-
                 amplitude *= persistence;
                 frequency *= 2;
             }
@@ -105,8 +105,8 @@ public class LucygenPerlin {
                           u);
             y2 = lerp(x1, x2, v);
 
-            Debug.Log("Output of the perlin function: " + (lerp(y1, y2, w) + 1) / 2);
-            return Mathf.Clamp((float)(lerp(y1, y2, w) + 1) / 2, -.005f, .005f);   // For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
+            float perlinValue = (float)(lerp(y1, y2, w) + 1) / 2;   // For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
+            return perlinValue;
         }
 
         public int inc(int num)

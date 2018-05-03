@@ -7,13 +7,17 @@ public class LucygenPlanet : MonoBehaviour {
 
     public int subdivisions;
     public int size;
+    public float scalingFactor;
+    public int perlinRepetitions = -1;
+    public int perlinOctaves = 24;
+    public float perlinPersistence = .5f;
     public Sun sun;
 
     private LucygenPolygonSet m_LucygenPolygons;
     private List<Vector3> m_VerticesList;
     private Mesh m_mesh;
-    private string docstring;
-    private LucygenPerlin perlin;
+    private static LucygenPerlin m_perlin;
+    private float m_greatestPolyHeight = 0;
 
     public void Awake()
     {
@@ -23,52 +27,94 @@ public class LucygenPlanet : MonoBehaviour {
     public void Start()
     {
         GetComponent<MeshFilter>().mesh = m_mesh = new Mesh();
+        List<Vector3> tempVertices = new List<Vector3>();
+
         InitAsIcosohedron(size);
         Subdivide(subdivisions);
-        List<Vector3> tempVertices = new List<Vector3>();
-        perlin = new LucygenPerlin();
+        m_perlin = new LucygenPerlin(perlinRepetitions);
+
+        float potentialGreatestPolyHeight = 0;
+
+        List<Vector3> shiftedVertices = new List<Vector3>();
+        foreach (Vector3 vert in m_VerticesList)
+        {
+            Vector3 tempVert = vert + Vector3.up + Vector3.right + Vector3.forward;
+            shiftedVertices.Add(tempVert);
+        }
 
         foreach (LucygenPolygon poly in m_LucygenPolygons)
         {
-            Vector3 vert1 = m_VerticesList[poly.m_vertices[0]];
-            Vector3 vert2 = m_VerticesList[poly.m_vertices[1]];
-            Vector3 vert3 = m_VerticesList[poly.m_vertices[2]];
-            float centerX = (1.0f / 3.0f) * (vert1.x + vert2.x + vert3.x);
-            float centerY = (1.0f / 3.0f) * (vert1.y + vert2.y + vert3.y);
-            float centerZ = (1.0f / 3.0f) * (vert1.z + vert2.z + vert3.z);
-            Vector3 center = new Vector3(centerX, centerY, centerZ);
+            Vector3 vert1 = shiftedVertices[poly.m_vertices[0]];
+            Vector3 vert2 = shiftedVertices[poly.m_vertices[1]];
+            Vector3 vert3 = shiftedVertices[poly.m_vertices[2]];
             LucygenPolygonSet set = new LucygenPolygonSet();
+
+            float centerX = (vert1.x + vert2.x + vert3.x)/3;
+            float centerY = (vert1.y + vert2.y + vert3.y)/3;
+            float centerZ = (vert1.z + vert2.z + vert3.z)/3;
+
+            Vector3 vertCenter = new Vector3(centerX, centerY, centerZ);
+
             set.Add(poly);
-            extrude(set, (float)perlin.OctavePerlin(centerX, centerY, centerZ, 24, .5));
+
+            LucygenEventLog.write(System.DateTime.Now + ": Pre-perlin poly coords: " + vertCenter.x + ", " + vertCenter.y + ", " + vertCenter.z);
+
+            float unscaledPolyHeight = (float)m_perlin.OctavePerlin(
+                 vertCenter.x,
+                 vertCenter.y,
+                 vertCenter.z,
+                 perlinOctaves,
+                 perlinPersistence);
+
+            //float unscaledPolyHeight = Perlin.Fbm(vertCenter.x/4, vertCenter.y/4, vertCenter.z/4, perlinOctaves);
+
+            extrude(set, potentialGreatestPolyHeight = unscaledPolyHeight * scalingFactor);
+
+            LucygenEventLog.write(System.DateTime.Now + ": Unscaled perlin height : " + unscaledPolyHeight);
+            LucygenEventLog.write(System.DateTime.Now + ": Scaled perlin height : " + potentialGreatestPolyHeight);
+
+            if (potentialGreatestPolyHeight > m_greatestPolyHeight)
+                m_greatestPolyHeight = potentialGreatestPolyHeight;
         }
 
-        foreach (Vector3 vertex in m_VerticesList)
+
+
+        foreach (Vector3 enlargedVertex in m_VerticesList)
         {
-            Vector3 newVertex = vertex * size;
+            Vector3 newVertex = enlargedVertex * size;
             tempVertices.Add(newVertex);
         }
-
-        
 
         m_VerticesList = tempVertices;
         m_mesh.vertices = m_VerticesList.ToArray();
         m_mesh.triangles = new int[m_LucygenPolygons.Count * 3];
         m_mesh.triangles = buildTriangles(m_LucygenPolygons, m_mesh.triangles);
 
+        m_mesh.RecalculateBounds();
         m_mesh.RecalculateNormals();
+        m_mesh.RecalculateTangents();
 
-        docstring += ("Number of Polys: " + m_LucygenPolygons.Count + "\n" + 
-            "Triangles array length: " + m_mesh.triangles.Length + "\n" + 
-            "Vertices array length: " + m_mesh.vertices.Length + "\n" +
-            "Normals array length: " + m_mesh.normals.Length);
+        LucygenEventLog.write("MESH STATISTICS");
+        LucygenEventLog.write("Total Number of Polys: " + m_LucygenPolygons.Count);
+        LucygenEventLog.write("Triangles array length: " + m_mesh.triangles.Length);
+        LucygenEventLog.write("Vertices array length: " + m_mesh.vertices.Length);
+        LucygenEventLog.write("Normals array length: " + m_mesh.normals.Length);
+        LucygenEventLog.write("Greatest poly height: " + m_greatestPolyHeight);
+        LucygenEventLog.write("Greatest poly height: " + m_greatestPolyHeight);
 
-        for (int i = 0; i < m_mesh.triangles.Length; i++)
+        /*LucygenEventLog.write("List of Triangle Indices");
+        LucygenEventLog.write("-----------------");
+        LucygenEventLog.write(string.Empty);
+
+        foreach (int triangle in m_mesh.triangles)
         {
-            docstring += m_mesh.triangles[i] + " ";
-            if ((i + 1) % 3 == 0)
-                docstring += "\n";
-        }
-        Debug.Log(docstring);
+            if ((triangle + 1) % 3 == 0)
+            {
+                LucygenEventLog.write("Index 1: " + m_mesh.triangles[triangle] + ", Index 2: " + m_mesh.triangles[triangle + 1] + ", index 3: " + m_mesh.triangles[triangle + 2]);
+            }
+        }*/
+
+        LucygenEventLog.printLog();
     }
 
     private void Update()
@@ -81,15 +127,15 @@ public class LucygenPlanet : MonoBehaviour {
 
     public void InitAsIcosohedron(float size)
     {
+        LucygenEventLog.write("Creating icosohedron");
         m_LucygenPolygons = new LucygenPolygonSet();
         m_VerticesList = new List<Vector3>();
 
-        // An icosahedron has 12 vertices, and
-        // since it's completely symmetrical the
-        // formula for calculating them is kind of
-        // symmetrical too:
+        // Formula for calculating vertex angle? Need to figure out what this does...
 
         float t = (1.0f + Mathf.Sqrt(5.0f)) / 2.0f;
+
+        // Initial 12 points of the icosohedron
 
         m_VerticesList.Add(new Vector3(-1.0f, t, 0).normalized);
         m_VerticesList.Add(new Vector3(1.0f, t, 0).normalized);
@@ -104,8 +150,7 @@ public class LucygenPlanet : MonoBehaviour {
         m_VerticesList.Add(new Vector3(-t, 0, -1.0f).normalized);
         m_VerticesList.Add(new Vector3(-t, 0, 1.0f).normalized);
 
-        // And here's the formula for the 20 sides,
-        // referencing the 12 vertices we just created.
+        // Initial 20 sides of the icosohedron
         m_LucygenPolygons.Add(new LucygenPolygon(0, 11, 5));
         m_LucygenPolygons.Add(new LucygenPolygon(0, 5, 1));
         m_LucygenPolygons.Add(new LucygenPolygon(0, 1, 7));
@@ -130,7 +175,7 @@ public class LucygenPlanet : MonoBehaviour {
 
     public void Subdivide(int recursions)
     {
-        Debug.Log("Subdividing surface.");
+        LucygenEventLog.write("Subdividing surface.");
         var midPointCache = new Dictionary<int, int>();
 
         for (int i = 0; i < recursions; i++)
@@ -163,6 +208,7 @@ public class LucygenPlanet : MonoBehaviour {
     //helper methods
     public int GetMidPointIndex(Dictionary<int, int> cache, int indexA, int indexB)
     {
+        LucygenEventLog.write("Getting mid-point index for " + m_VerticesList[indexA] + " and " + m_VerticesList[indexB]);
         // We create a key out of the two original indices
         // by storing the smaller index in the upper two bytes
         // of an integer, and the larger index in the lower two
@@ -184,6 +230,8 @@ public class LucygenPlanet : MonoBehaviour {
         Vector3 p1 = m_VerticesList[indexA];
         Vector3 p2 = m_VerticesList[indexB];
         Vector3 middle = Vector3.Lerp(p1, p2, 0.5f).normalized;
+
+        LucygenEventLog.write("Midpoint for " + m_VerticesList[indexA] + " and " + m_VerticesList[indexB] + " is " + middle);
 
         ret = m_VerticesList.Count;
         m_VerticesList.Add(middle);
@@ -409,7 +457,41 @@ public class LucygenPlanet : MonoBehaviour {
 
             }
         }
-        Debug.Log("Number of calculated normals: " + result.Count);
         return result.ToArray();
     }
+
+    public Vector3 toUnitCircle(Vector3 point)
+    {
+        Vector3 result = Vector3.zero;
+        float distToOrigin = Vector3.Distance(point, Vector3.zero);
+        result *= distToOrigin;
+        return result;
+    } 
+
+    Vector3 ToCartesian(Vector3 aSpherical)
+    {
+        return ToCartesian(aSpherical, Quaternion.identity);
+    }
+    Vector3 ToCartesian(Vector3 aSpherical, Quaternion aSpace)
+    {
+        Vector3 result;
+        float c = Mathf.Cos(aSpherical.y);
+        result.x = Mathf.Cos(aSpherical.x) * c;
+        result.y = Mathf.Sin(aSpherical.y);
+        result.z = Mathf.Sin(aSpherical.x) * c;
+        result *= aSpherical.z;
+        result = aSpace * result;
+        return result;
+    }
+
+    Vector3 ToCircle(Vector3 aSpherical, float aRadius)
+    {
+        Vector3 result;
+        float r = -aRadius * (aSpherical.y - Mathf.PI / 2) / Mathf.PI;
+        result.x = Mathf.Cos(aSpherical.x) * r;
+        result.y = aSpherical.z;
+        result.z = Mathf.Sin(aSpherical.x) * r;
+        return result;
+    }
+
 }

@@ -370,12 +370,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 942a0b0de6c91784cad7b1773941d453, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  subdivisions: 6
+  subdivisions: 3
   size: 1
-  scalingFactor: 10
   randomSeed: 1
   perlinRepetitions: -1
   perlinOctaves: 6
+  scalingFactor: 10
   perlinPersistence: 0.5
   perlinIntitialAmplitude: 148
   perlinInitialFrequency: 4

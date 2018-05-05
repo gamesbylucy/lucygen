@@ -23,7 +23,7 @@ public class Planet : MonoBehaviour {
 
     //PRIVATE MEMEBERS
 
-    private PolygonSet m_LucygenPolygons;
+    private PolygonSet m_planetPolygons;
     private List<Vector3> m_VerticesList;
     private Mesh m_mesh;
     private static Perlin m_perlin;
@@ -42,8 +42,9 @@ public class Planet : MonoBehaviour {
     {
         InitAsIcosohedron(size);
         Subdivide(subdivisions);
+        calculatePolygonNeighbors();
 
-        m_randomNoise = getRandomDoubles(m_LucygenPolygons.Count * 3);
+        m_randomNoise = getRandomDoubles(m_planetPolygons.Count * 3);
 
         List<Vector3> shiftedVertices = new List<Vector3>();
         shiftedVertices = shiftPoints(m_VerticesList, 1, 1, 1);
@@ -53,11 +54,14 @@ public class Planet : MonoBehaviour {
         double potentialLeastPolyHeight = 0;
         double scaledPolyHeight = 0;
 
-        foreach (Polygon poly in m_LucygenPolygons)
+        List<PolygonSet> polySets = new List<PolygonSet>();
+
+        foreach (Polygon poly in m_planetPolygons)
         {
             Vector3 vert1 = shiftedVertices[poly.m_vertices[0]];
             Vector3 vert2 = shiftedVertices[poly.m_vertices[1]];
             Vector3 vert3 = shiftedVertices[poly.m_vertices[2]];
+
             PolygonSet set = new PolygonSet();
 
             float centerX = (vert1.x + vert2.x + vert3.x) / 3;
@@ -108,18 +112,28 @@ public class Planet : MonoBehaviour {
             if (potentialLeastPolyHeight <= m_greatestPolyHeight)
                 m_leastPolyHeight = potentialLeastPolyHeight;
 
-            extrudePolygonSet(set, (float)scaledPolyHeight);
+            //extrudePolygonSet(set, (float)scaledPolyHeight);
+            set.m_height = (float)scaledPolyHeight;
+            polySets.Add(set);
 
             EventLog.write(System.DateTime.Now + ": Unscaled perlin height : " + unscaledPolyHeight);
             EventLog.write(System.DateTime.Now + ": Scaled perlin height : " + scaledPolyHeight);
         }
 
+        foreach (PolygonSet set in polySets)
+        {
+            extrudePolygonSet(set, set.m_height);
+
+        }
+
+        //extrudePolygonSet(createHexSet(m_planetPolygons[0]), .1f);
+
         enlargePoints(m_VerticesList, size);
 
-        m_mesh = rebuildMesh(m_VerticesList, m_LucygenPolygons);
+        m_mesh = rebuildMesh(m_VerticesList, m_planetPolygons);
 
         EventLog.write(System.DateTime.Now + ": MESH STATISTICS");
-        EventLog.write(System.DateTime.Now + ": Total Number of Polys: " + m_LucygenPolygons.Count);
+        EventLog.write(System.DateTime.Now + ": Total Number of Polys: " + m_planetPolygons.Count);
         EventLog.write(System.DateTime.Now + ": Triangles array length: " + m_mesh.triangles.Length);
         EventLog.write(System.DateTime.Now + ": Vertices array length: " + m_mesh.vertices.Length);
         EventLog.write(System.DateTime.Now + ": Normals array length: " + m_mesh.normals.Length);
@@ -167,7 +181,7 @@ public class Planet : MonoBehaviour {
     private void InitAsIcosohedron(float size)
     {
         EventLog.write(System.DateTime.Now + ": Creating icosohedron");
-        m_LucygenPolygons = new PolygonSet();
+        m_planetPolygons = new PolygonSet();
         m_VerticesList = new List<Vector3>();
 
         // Formula for calculating vertex angle? Need to figure out what this does...
@@ -191,26 +205,26 @@ public class Planet : MonoBehaviour {
 
         // Initial 20 sides of the icosohedron
 
-        m_LucygenPolygons.Add(new Polygon(0, 11, 5));
-        m_LucygenPolygons.Add(new Polygon(0, 5, 1));
-        m_LucygenPolygons.Add(new Polygon(0, 1, 7));
-        m_LucygenPolygons.Add(new Polygon(0, 7, 10));
-        m_LucygenPolygons.Add(new Polygon(0, 10, 11));
-        m_LucygenPolygons.Add(new Polygon(1, 5, 9));
-        m_LucygenPolygons.Add(new Polygon(5, 11, 4));
-        m_LucygenPolygons.Add(new Polygon(11, 10, 2));
-        m_LucygenPolygons.Add(new Polygon(10, 7, 6));
-        m_LucygenPolygons.Add(new Polygon(7, 1, 8));
-        m_LucygenPolygons.Add(new Polygon(3, 9, 4));
-        m_LucygenPolygons.Add(new Polygon(3, 4, 2));
-        m_LucygenPolygons.Add(new Polygon(3, 2, 6));
-        m_LucygenPolygons.Add(new Polygon(3, 6, 8));
-        m_LucygenPolygons.Add(new Polygon(3, 8, 9));
-        m_LucygenPolygons.Add(new Polygon(4, 9, 5));
-        m_LucygenPolygons.Add(new Polygon(2, 4, 11));
-        m_LucygenPolygons.Add(new Polygon(6, 2, 10));
-        m_LucygenPolygons.Add(new Polygon(8, 6, 7));
-        m_LucygenPolygons.Add(new Polygon(9, 8, 1));
+        m_planetPolygons.Add(new Polygon(0, 11, 5));
+        m_planetPolygons.Add(new Polygon(0, 5, 1));
+        m_planetPolygons.Add(new Polygon(0, 1, 7));
+        m_planetPolygons.Add(new Polygon(0, 7, 10));
+        m_planetPolygons.Add(new Polygon(0, 10, 11));
+        m_planetPolygons.Add(new Polygon(1, 5, 9));
+        m_planetPolygons.Add(new Polygon(5, 11, 4));
+        m_planetPolygons.Add(new Polygon(11, 10, 2));
+        m_planetPolygons.Add(new Polygon(10, 7, 6));
+        m_planetPolygons.Add(new Polygon(7, 1, 8));
+        m_planetPolygons.Add(new Polygon(3, 9, 4));
+        m_planetPolygons.Add(new Polygon(3, 4, 2));
+        m_planetPolygons.Add(new Polygon(3, 2, 6));
+        m_planetPolygons.Add(new Polygon(3, 6, 8));
+        m_planetPolygons.Add(new Polygon(3, 8, 9));
+        m_planetPolygons.Add(new Polygon(4, 9, 5));
+        m_planetPolygons.Add(new Polygon(2, 4, 11));
+        m_planetPolygons.Add(new Polygon(6, 2, 10));
+        m_planetPolygons.Add(new Polygon(8, 6, 7));
+        m_planetPolygons.Add(new Polygon(9, 8, 1));
     }
 
     private void Subdivide(int recursions)
@@ -221,7 +235,7 @@ public class Planet : MonoBehaviour {
         for (int i = 0; i < recursions; i++)
         {
             var newPolys = new PolygonSet();
-            foreach (var poly in m_LucygenPolygons)
+            foreach (var poly in m_planetPolygons)
             {
                 int a = poly.m_vertices[0];
                 int b = poly.m_vertices[1];
@@ -246,7 +260,7 @@ public class Planet : MonoBehaviour {
 
             // Replace all our old polygons with the new set of
             // subdivided ones.
-            m_LucygenPolygons = newPolys;
+            m_planetPolygons = newPolys;
         }
     }
 
@@ -291,9 +305,9 @@ public class Planet : MonoBehaviour {
 
     private void calculatePolygonNeighbors()
     {
-        foreach (Polygon polygon in m_LucygenPolygons)
+        foreach (Polygon polygon in m_planetPolygons)
         {
-            foreach (Polygon otherPolygon in m_LucygenPolygons)
+            foreach (Polygon otherPolygon in m_planetPolygons)
             {
                 if (polygon == otherPolygon)
                     continue;
@@ -345,18 +359,18 @@ public class Planet : MonoBehaviour {
             //will connect the original poly to its former neighbor.
 
             Polygon stitchPoly1 = new Polygon(oldEdge.m_sharedVertices[0],
-                                                            oldEdge.m_sharedVertices[1],
-                                                            oldEdge.m_sharedVertices[0]);
+                                              oldEdge.m_sharedVertices[1],
+                                              oldEdge.m_sharedVertices[0]);
 
             Polygon stitchPoly2 = new Polygon(oldEdge.m_sharedVertices[1],
-                                                            oldEdge.m_sharedVertices[1],
-                                                            oldEdge.m_sharedVertices[0]);
+                                              oldEdge.m_sharedVertices[1],
+                                              oldEdge.m_sharedVertices[0]);
 
             oldEdge.m_innerPolygon.ReplaceNeighbor(oldEdge.m_outerPolygon, stitchPoly2);
             oldEdge.m_outerPolygon.ReplaceNeighbor(oldEdge.m_innerPolygon, stitchPoly1);
 
-            m_LucygenPolygons.Add(stitchPoly1);
-            m_LucygenPolygons.Add(stitchPoly2);
+            m_planetPolygons.Add(stitchPoly1);
+            m_planetPolygons.Add(stitchPoly2);
         }
 
         //Swap to the new vertices on the inner polys.
@@ -373,6 +387,65 @@ public class Planet : MonoBehaviour {
                 poly.m_vertices[i] = newVertices[vertIndex];
             }
         }
+    }
+
+    private PolygonSet createHexSet(Polygon poly)
+    {
+        PolygonSet result = new PolygonSet();
+        Polygon p1 = m_planetPolygons[0];
+        result.Add(p1);
+
+        Polygon p2 = p1.m_neighbors[0];
+        Polygon p6 = p1.m_neighbors[1];
+        result.Add(p2);
+        result.Add(p6);
+
+        Polygon p3 = new Polygon(0, 0, 0);
+        Polygon p4 = new Polygon(0, 0, 0);
+        Polygon p5 = new Polygon(0, 0, 0);
+
+        foreach (Polygon p2Neighbor in p2.m_neighbors)
+        {
+            foreach (Polygon p6Neighbor in p6.m_neighbors)
+            {
+                /*foreach (Polygon p2NeighborNeighbor in p2Neighbor.m_neighbors)
+                {
+                    if (p6Neighbor.m_neighbors.Contains(p2NeighborNeighbor) && (p2NeighborNeighbor != p6) && (p2NeighborNeighbor != p2))
+                    {
+                        p3 = p2Neighbor;
+                        p5 = p6Neighbor;
+                        p4 = p2NeighborNeighbor;
+                        testSet.Add(p3);
+                        testSet.Add(p5);
+                        testSet.Add(p4);
+                    }
+                }*/
+                foreach (Polygon p2NeighborNeighbor in p2Neighbor.m_neighbors)
+                {
+                    foreach (Polygon p6NeighborNeighbor in p6Neighbor.m_neighbors)
+                    {
+                        if (p2NeighborNeighbor == p6NeighborNeighbor)
+                        {
+                            foreach (Polygon unionPoly in result)
+                            {
+                                if (p2NeighborNeighbor.m_neighbors.Contains(unionPoly))
+                                    continue;
+
+                                p3 = p2Neighbor;
+                                p5 = p6Neighbor;
+                                p4 = p2NeighborNeighbor;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        result.Add(p3);
+        result.Add(p5);
+        result.Add(p4);
+
+        return result;
     }
 
     private void extrudePolygonSet(PolygonSet polys, float height)
@@ -457,7 +530,7 @@ public class Planet : MonoBehaviour {
     //takes the indices stored in each polygon and copies them, in order, into a list of triangle points
     private int[] buildTriangles(List<Polygon> polygons, int[] trianglePoints)
     { 
-        for (int i = 0; i < m_LucygenPolygons.Count * 3;)
+        for (int i = 0; i < m_planetPolygons.Count * 3;)
         {
             for (int j = 0; j < polygons.Count; j++)
             {

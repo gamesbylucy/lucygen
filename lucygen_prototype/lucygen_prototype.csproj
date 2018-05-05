@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2017.4.2f2</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -243,58 +245,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\PlanePerlin.cs" />
-    <Compile Include="Assets\Scripts\Extensions\Vector2Extensions.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Cubesphere\CircleGizmo.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Cubesphere\CubeSphere.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Cubesphere\Grid.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Cubesphere\RoundedCube.cs" />
-    <Compile Include="Assets\Scripts\Legacy\CubeSphereExperimental.cs" />
-    <Compile Include="Assets\Scripts\Legacy\CubeTexturePartitioner.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Main.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Map\Biome.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Map\Center.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Map\Corner.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Map\Edge.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Map\Graph.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Map\IslandShape.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Map\Map.cs" />
-    <Compile Include="Assets\Scripts\Legacy\Map\MapTexture.cs" />
-    <Compile Include="Assets\Scripts\Planet\LucygenEdge.cs" />
-    <Compile Include="Assets\Scripts\Planet\LucygenEdgeSet.cs" />
-    <Compile Include="Assets\Scripts\Planet\LucygenEventLog.cs" />
-    <Compile Include="Assets\Scripts\Planet\LucygenPerlin.cs" />
-    <Compile Include="Assets\Scripts\Planet\LucygenPlanet.cs" />
-    <Compile Include="Assets\Scripts\Planet\LucygenPolygon.cs" />
-    <Compile Include="Assets\Scripts\Planet\LucygenPolygonSet.cs" />
-    <Compile Include="Assets\Scripts\Planet\Perlin.cs" />
-    <Compile Include="Assets\Scripts\PlayerController.cs" />
-    <Compile Include="Assets\Scripts\PseudoGravityAttractor.cs" />
-    <Compile Include="Assets\Scripts\PseudoGravityBody.cs" />
-    <Compile Include="Assets\Scripts\Test\FbmTextureTest.cs" />
-    <Compile Include="Assets\Scripts\Test\ValueRangeTest.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\DelaunayHelpers.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\Edge.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\EdgeList.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\EdgeReorderer.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\Halfedge.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\HalfedgePriorityQueue.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\ICoord.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\LR.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\Site.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\SiteList.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\Triangle.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\Vertex.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\Delaunay\Voronoi.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\geom\Circle.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\geom\LineSegment.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\geom\Polygon.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\geom\Winding.cs" />
-    <Compile Include="Assets\Scripts\Unity-delaunay\utils\IDisposable.cs" />
-    <Compile Include="Assets\Sun.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\Scripts\Legacy\Cubesphere\Rounded Cube Grid.shader" />
+    <Compile Include="Assets\Scripts\Lucygen\ConversionUtilities.cs" />
+    <Compile Include="Assets\Scripts\Lucygen\Edge.cs" />
+    <Compile Include="Assets\Scripts\Lucygen\EdgeSet.cs" />
+    <Compile Include="Assets\Scripts\Lucygen\EventLog.cs" />
+    <Compile Include="Assets\Scripts\Lucygen\Perlin.cs" />
+    <Compile Include="Assets\Scripts\Lucygen\Planet.cs" />
+    <Compile Include="Assets\Scripts\Lucygen\Polygon.cs" />
+    <Compile Include="Assets\Scripts\Lucygen\PolygonSet.cs" />
+    <Compile Include="Assets\Scripts\Lucygen\Sun.cs" />
+    <Compile Include="Assets\Scripts\PlayerController\PlayerController.cs" />
+    <Compile Include="Assets\Scripts\Psuedogravity\PGAttractor.cs" />
+    <Compile Include="Assets\Scripts\Psuedogravity\PGBody.cs" />
+    <Compile Include="Assets\Scripts\Utility\Perlin.cs" />
+    <Compile Include="Assets\Scripts\Utility\PlanePerlin.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

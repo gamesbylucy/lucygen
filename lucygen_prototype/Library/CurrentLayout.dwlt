@@ -20,7 +20,7 @@ MonoBehaviour:
   m_ShowMode: 4
   m_Title: 
   m_RootView: {fileID: 5}
-  m_MinSize: {x: 950, y: 492}
+  m_MinSize: {x: 950, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
 --- !u!114 &2
 MonoBehaviour:
@@ -117,7 +117,7 @@ MonoBehaviour:
     y: 0
     width: 1920
     height: 1007
-  m_MinSize: {x: 950, y: 492}
+  m_MinSize: {x: 950, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
 --- !u!114 &6
 MonoBehaviour:
@@ -185,7 +185,7 @@ MonoBehaviour:
   m_MinSize: {x: 917, y: 442}
   m_MaxSize: {x: 22012, y: 10021}
   vertical: 0
-  controlID: 130
+  controlID: 110
 --- !u!114 &9
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -209,7 +209,7 @@ MonoBehaviour:
   m_MinSize: {x: 204, y: 342}
   m_MaxSize: {x: 4004, y: 8042}
   vertical: 1
-  controlID: 10
+  controlID: 124
 --- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -446,9 +446,9 @@ MonoBehaviour:
   m_PersistentViewDataDictionary: {fileID: 0}
   m_TreeViewState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: ea280000
-    m_LastClickedID: 10474
-    m_ExpandedIDs: 98fbffff00000000
+    m_SelectedIDs: c2420000
+    m_LastClickedID: 0
+    m_ExpandedIDs: d816e0ff261fe0ff98fbffff00000000ea280000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -504,9 +504,9 @@ MonoBehaviour:
   m_isRotationLocked: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: -49.527508, y: -0.12807244, z: -7.0667005}
+    m_Target: {x: 50, y: 0, z: 0}
     speed: 2
-    m_Value: {x: -49.527508, y: -0.12807244, z: -7.0667005}
+    m_Value: {x: 50, y: 0, z: 0}
   m_RenderMode: 0
   m_ValidateTrueMetals: 0
   m_SceneViewState:
@@ -530,13 +530,13 @@ MonoBehaviour:
       speed: 2
       m_Value: 0
   m_Rotation:
-    m_Target: {x: 0.023390975, y: -0.9669793, z: -0.23478219, w: -0.09633924}
+    m_Target: {x: 0.20323807, y: 0.5546725, z: -0.14192624, w: 0.7942856}
     speed: 2
-    m_Value: {x: 0.023390975, y: -0.9669793, z: -0.23478219, w: -0.09633924}
+    m_Value: {x: 0.20323808, y: 0.55467254, z: -0.14192626, w: 0.79428566}
   m_Size:
-    m_Target: 0.8869583
+    m_Target: 91.66536
     speed: 2
-    m_Value: 0.8869583
+    m_Value: 91.66536
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -614,19 +614,19 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets/Scripts/Planet
+    - Assets/Scripts/Lucygen
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Scripts/Planet
+  - Assets/Scripts/Lucygen
   m_LastFoldersGridSize: 16
   m_LastProjectPath: C:\Users\jorda\Documents\GitHub Desktop Repos\gamesbylucy\lucygen\lucygen_prototype
   m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: a2280000
-    m_LastClickedID: 10402
-    m_ExpandedIDs: 00000000f227000032280000402800002229000000ca9a3bffffff7f
+    m_SelectedIDs: a4280000
+    m_LastClickedID: 10404
+    m_ExpandedIDs: 00000000f427000034280000422800002229000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -654,7 +654,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000f2270000322800004028000022290000
+    m_ExpandedIDs: 00000000f4270000342800004228000022290000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

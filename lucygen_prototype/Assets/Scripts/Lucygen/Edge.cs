@@ -25,9 +25,6 @@ public class Edge {
 
     public Edge clone()
     {
-        Polygon cloneInnerPolygon = new Polygon(m_innerPolygon.m_vertices[0], m_innerPolygon.m_vertices[1], m_innerPolygon.m_vertices[2]);
-        Polygon cloneOuterPolgon = new Polygon(m_outerPolygon.m_vertices[0], m_outerPolygon.m_vertices[1], m_outerPolygon.m_vertices[2]);
-        Edge cloneEdge = new Edge(cloneInnerPolygon, cloneOuterPolgon);
-        return cloneEdge;
+        return new Edge(m_innerPolygon, m_outerPolygon);
     }
 }

@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class PolygonSet : List<Polygon> {
 
-    public float m_height;
-
 	public EdgeSet createEdgeSet()
     {
         EdgeSet edgeSet = new EdgeSet();

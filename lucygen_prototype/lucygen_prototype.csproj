@@ -254,6 +254,8 @@
     <Compile Include="Assets\Scripts\Lucygen\Polygon.cs" />
     <Compile Include="Assets\Scripts\Lucygen\PolygonSet.cs" />
     <Compile Include="Assets\Scripts\Lucygen\Sun.cs" />
+    <Compile Include="Assets\Scripts\Lucygen\MeshTriangle.cs" />
+    <Compile Include="Assets\Scripts\Lucygen\MeshTriangleList.cs" />
     <Compile Include="Assets\Scripts\PlayerController\PlayerController.cs" />
     <Compile Include="Assets\Scripts\Psuedogravity\PGAttractor.cs" />
     <Compile Include="Assets\Scripts\Psuedogravity\PGBody.cs" />

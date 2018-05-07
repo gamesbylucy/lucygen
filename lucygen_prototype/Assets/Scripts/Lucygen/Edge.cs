@@ -8,22 +8,22 @@ public class Edge {
     public Polygon m_innerPolygon;
     public Polygon m_outerPolygon;
 
-    public List<int> m_sharedVertices;
+    public List<int> mli_sharedVertices;
 
     public Edge(Polygon innerPolygon, Polygon outerPolygon)
     {
         m_innerPolygon = innerPolygon;
         m_outerPolygon = outerPolygon;
-        m_sharedVertices = new List<int>();
+        mli_sharedVertices = new List<int>();
 
-        foreach(int vertex in innerPolygon.m_vertices)
+        foreach(int vertex in innerPolygon.mli_vertices)
         {
-            if (outerPolygon.m_vertices.Contains(vertex))
-                m_sharedVertices.Add(vertex);
+            if (outerPolygon.mli_vertices.Contains(vertex))
+                mli_sharedVertices.Add(vertex);
         }
     }
 
-    public Edge clone()
+    public Edge Clone()
     {
         return new Edge(m_innerPolygon, m_outerPolygon);
     }

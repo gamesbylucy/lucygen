@@ -370,16 +370,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 942a0b0de6c91784cad7b1773941d453, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  subdivisions: 3
-  size: 1
-  randomSeed: 1
-  perlinRepetitions: -1
-  perlinOctaves: 6
-  scalingFactor: 10
-  perlinPersistence: 0.5
-  perlinIntitialAmplitude: 148
-  perlinInitialFrequency: 4
-  perlinLacunarity: 2
+  i_subdivisions: 3
+  i_size: 1
+  i_randomSeed: 0
+  i_perlinRepetitions: -1
+  i_perlinOctaves: 6
+  d_scalingFactor: 1
+  d_perlinPersistence: 0.5
+  d_perlinAmplitude: 128
+  d_perlinFrequency: 4
+  d_perlinLacunarity: 2
   sun: {fileID: 1687865713}
 --- !u!23 &1979098456
 MeshRenderer:

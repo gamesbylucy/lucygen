@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class ConversionUtilities {
 
-    public static Vector3 toUnitCircle(Vector3 point)
+    public static Vector3 ToUnitCircle(Vector3 point)
     {
         Vector3 result = Vector3.zero;
         float distToOrigin = Vector3.Distance(point, Vector3.zero);

@@ -4,15 +4,23 @@ using UnityEngine;
 
 public class MeshTriangle {
 
-    public int m_vertA, m_vertB, m_vertC;
+    public int mi_vertA, mi_vertB, mi_vertC;
 
-    public int[] m_vertices;
+    public int[] mli_vertices;
 
     public MeshTriangle(int a, int b, int c)
     {
-        m_vertA = a;
-        m_vertB = b;
-        m_vertC = c;
-        m_vertices = [a, b, c];
+        mi_vertA = a;
+        mi_vertB = b;
+        mi_vertC = c;
+        mli_vertices = new int[] { a, b, c };
+    }
+
+    public MeshTriangle(Polygon poly)
+    {
+        mi_vertA = poly.mli_vertices[0];
+        mi_vertB = poly.mli_vertices[1];
+        mi_vertC = poly.mli_vertices[2];
+        mli_vertices = new int[] { poly.mli_vertices[0], poly.mli_vertices[1], poly.mli_vertices[2] };
     }
 }

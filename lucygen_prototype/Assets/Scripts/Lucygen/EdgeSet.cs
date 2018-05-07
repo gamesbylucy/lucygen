@@ -5,11 +5,11 @@ using System;
 
 public class EdgeSet : List<Edge> {
 
-	public EdgeSet clone()
+	public EdgeSet Clone()
     {
         EdgeSet clone = new EdgeSet();
         foreach (Edge edge in this)
-            clone.Add(edge.clone());
+            clone.Add(edge.Clone());
         return clone;
     }
 
@@ -18,7 +18,7 @@ public class EdgeSet : List<Edge> {
         List<int> vertices = new List<int>();
         foreach (Edge edge in this)
         {
-            foreach (int vert in edge.m_sharedVertices)
+            foreach (int vert in edge.mli_sharedVertices)
             {
                 if (!vertices.Contains(vert))
                     vertices.Add(vert);

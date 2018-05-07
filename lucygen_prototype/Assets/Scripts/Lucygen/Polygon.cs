@@ -5,44 +5,39 @@ using UnityEngine;
 
 public class Polygon {
 
-    public List<int> m_vertices;
-    public List<Polygon> m_neighbors;
+    public List<int> mli_vertices;
+    public List<Polygon> ml_neighborPolygons;
 
-    public Polygon(int a, int b, int c)
+    public Polygon(int vertA, int vertB, int vertC)
     {
-        m_vertices = new List<int>() { a, b, c };
-        m_neighbors = new List<Polygon>();
-    }
-
-    public void assignFace(int a, int b, int c)
-    {
-        m_vertices = new List<int>() { a, b, c };
+        mli_vertices = new List<int>() { vertA, vertB, vertC };
+        ml_neighborPolygons = new List<Polygon>();
     }
 
     //determines that this polygon is a neighbor of the arg if the polys have
     //more than 2 shared vertices
-    public bool isNeighborOf(Polygon other_poly)
+    public bool IsNeighborOf(Polygon potentialNeighbor)
     {
         bool result = false;
 
-        int shared_vertices = 0;
+        int sharedVertices = 0;
 
-        foreach (int vertex in m_vertices)
+        foreach (int vertex in mli_vertices)
         {
-            if (other_poly.m_vertices.Contains(vertex))
-                shared_vertices++;
+            if (potentialNeighbor.mli_vertices.Contains(vertex))
+                sharedVertices++;
         }
 
-        return shared_vertices == 2;
+        return sharedVertices == 2;
     }
 
     public void ReplaceNeighbor(Polygon oldPoly, Polygon newPoly)
     {
-        for (int i = 0; i < m_neighbors.Count; i++)
+        for (int i = 0; i < ml_neighborPolygons.Count; i++)
         {
-            if (oldPoly == m_neighbors[i])
+            if (oldPoly == ml_neighborPolygons[i])
             {
-                m_neighbors[i] = newPoly;
+                ml_neighborPolygons[i] = newPoly;
                 return;
             }
         }

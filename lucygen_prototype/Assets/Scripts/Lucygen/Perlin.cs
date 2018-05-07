@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class Perlin {
 
-    public int repeat;
+    public int mi_repeat;
 
     public Perlin(int repeat = -1)
     {
-        this.repeat = repeat;
+        this.mi_repeat = repeat;
     }
 
     public double OctavePerlin(double x, double y, double z, int octaves, double persistence)
@@ -20,7 +20,7 @@ public class Perlin {
 
         for (int i = 0; i < octaves; i++)
         {
-            total += perlin(x * frequency, y * frequency, z * frequency) * amplitude;
+            total += SinglePerlin(x * frequency, y * frequency, z * frequency) * amplitude;
 
             maxValue += amplitude;
             amplitude *= persistence;
@@ -39,7 +39,7 @@ public class Perlin {
 
         for (int i = 0; i < octaves; i++)
         {
-            total += perlin(x * frequency, y * frequency, z * frequency) * amplitude;
+            total += SinglePerlin(x * frequency, y * frequency, z * frequency) * amplitude;
 
             maxValue += amplitude;
             amplitude *= persistence;
@@ -58,7 +58,7 @@ public class Perlin {
 
         for (int i = 0; i < octaves; i++)
         {
-            total += perlin(x * frequency, y * frequency, z * frequency) * amplitude;
+            total += SinglePerlin(x * frequency, y * frequency, z * frequency) * amplitude;
 
             maxValue += amplitude;
             amplitude *= persistence;
@@ -96,13 +96,13 @@ public class Perlin {
         }
     }
 
-    public double perlin(double x, double y, double z)
+    public double SinglePerlin(double x, double y, double z)
     {
-        if (repeat > 0)
+        if (mi_repeat > 0)
         {                               // If we have any repeat on, change the coordinates to their "local" repetitions
-            x = x % repeat;
-            y = y % repeat;
-            z = z % repeat;
+            x = x % mi_repeat;
+            y = y % mi_repeat;
+            z = z % mi_repeat;
         }
 
         int xi = (int)x & 255;          // Calculate the "unit cube" that the point asked will be located in
@@ -113,19 +113,19 @@ public class Perlin {
         double yf = y - (int)y;         //Next we calculate the location (from 0.0 to 1.0) in that cube.
         double zf = z - (int)z;
 
-        double u = fade(xf);            // We also fade the location to smooth the result.
-        double v = fade(yf);
-        double w = fade(zf);
+        double u = Fade(xf);            // We also fade the location to smooth the result.
+        double v = Fade(yf);
+        double w = Fade(zf);
 
         int aaa, aba, aab, abb, baa, bba, bab, bbb;
         aaa = p[ p[ p[xi] + yi] + zi];
-        aba = p[ p[ p[xi] + inc(yi)] + zi];
-        aab = p[ p[ p[xi] + yi] + inc(zi)];
-        abb = p[ p[ p[xi] + inc(yi)] + inc(zi)];
-        baa = p[ p[ p[inc(xi)] + yi] + zi];
-        bba = p[ p[ p[inc(xi)] + inc(yi)] + zi];
-        bab = p[ p[ p[inc(xi)] + yi] + inc(zi)];
-        bbb = p[ p[ p[inc(xi)] + inc(yi)] + inc(zi)];
+        aba = p[ p[ p[xi] + Increment(yi)] + zi];
+        aab = p[ p[ p[xi] + yi] + Increment(zi)];
+        abb = p[ p[ p[xi] + Increment(yi)] + Increment(zi)];
+        baa = p[ p[ p[Increment(xi)] + yi] + zi];
+        bba = p[ p[ p[Increment(xi)] + Increment(yi)] + zi];
+        bab = p[ p[ p[Increment(xi)] + yi] + Increment(zi)];
+        bbb = p[ p[ p[Increment(xi)] + Increment(yi)] + Increment(zi)];
 
         double x1, x2, y1, y2;
 
@@ -134,46 +134,46 @@ public class Perlin {
         points in its unit cube. This is all lerped together as a sort of weighted
         average based on the faded (u,v,w) values we made earlier.*/
 
-        x1 = lerp(
-                    grad(aaa, xf, yf, zf),            
-                    grad(baa, xf - 1, yf, zf),        
+        x1 = Lerp(
+                    Gradient(aaa, xf, yf, zf),            
+                    Gradient(baa, xf - 1, yf, zf),        
                     u
                     );
                                                           
-        x2 = lerp(
-                    grad(aba, xf, yf - 1, zf),        
-                    grad(bba, xf - 1, yf - 1, zf),    
+        x2 = Lerp(
+                    Gradient(aba, xf, yf - 1, zf),        
+                    Gradient(bba, xf - 1, yf - 1, zf),    
                     u
                     );
             
-        y1 = lerp(x1, x2, v);
+        y1 = Lerp(x1, x2, v);
 
-        x1 = lerp(
-                    grad(aab, xf, yf, zf - 1),
-                    grad(bab, xf - 1, yf, zf - 1),
+        x1 = Lerp(
+                    Gradient(aab, xf, yf, zf - 1),
+                    Gradient(bab, xf - 1, yf, zf - 1),
                     u
                     );
 
-        x2 = lerp(
-                    grad(abb, xf, yf - 1, zf - 1),
-                    grad(bbb, xf - 1, yf - 1, zf - 1),
+        x2 = Lerp(
+                    Gradient(abb, xf, yf - 1, zf - 1),
+                    Gradient(bbb, xf - 1, yf - 1, zf - 1),
                     u
                     );
 
-        y2 = lerp(x1, x2, v);
+        y2 = Lerp(x1, x2, v);
 
-        return (float)(lerp(y1, y2, w) + 1) / 2;   // For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
+        return (float)(Lerp(y1, y2, w) + 1) / 2;   // For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
     }
 
-    public int inc(int num)
+    public int Increment(int num)
     {
         num++;
-        if (repeat > 0) num %= repeat;
+        if (mi_repeat > 0) num %= mi_repeat;
 
         return num;
     }
 
-    public static double grad(int hash, double x, double y, double z)
+    public static double Gradient(int hash, double x, double y, double z)
     {
         switch (hash & 0xF)
         {
@@ -197,7 +197,7 @@ public class Perlin {
         }
     }
 
-    public static double fade(double t)
+    public static double Fade(double t)
     {
         // Fade function as defined by Ken Perlin.  This eases coordinate values
         // so that they will "ease" towards integral values.  This ends up smoothing
@@ -205,7 +205,7 @@ public class Perlin {
         return t * t * t * (t * (t * 6 - 15) + 10);         // 6t^5 - 15t^4 + 10t^3
     }
 
-    public static double lerp(double a, double b, double x)
+    public static double Lerp(double a, double b, double x)
     {
         return a + x * (b - a);
     }

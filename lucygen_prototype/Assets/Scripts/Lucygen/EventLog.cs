@@ -25,6 +25,6 @@ public static class EventLog {
 
     public static void Add(string logEvent)
     {
-        mls_log.Add(logEvent);
+        mls_log.Add(System.DateTime.Now + ": " + logEvent);
     }
 }

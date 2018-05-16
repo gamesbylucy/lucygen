@@ -370,7 +370,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 942a0b0de6c91784cad7b1773941d453, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  i_subdivisions: 1
+  i_subdivisions: 3
   i_size: 1
   i_randomSeed: 0
   i_perlinRepetitions: -1

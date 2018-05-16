@@ -7,13 +7,11 @@ public class Polygon {
 
     public List<int> mli_vertices;
     public List<Polygon> ml_neighborPolygons;
-    public int[] mli_meshTriangleVertices;
 
     public Polygon(int vertA, int vertB, int vertC)
     {
         mli_vertices = new List<int>() { vertA, vertB, vertC };
         ml_neighborPolygons = new List<Polygon>();
-        mli_meshTriangleVertices = new int[3] { vertA, vertB, vertC };
     }
 
     //determines that this polygon is a neighbor of the arg if the polys have
@@ -43,12 +41,5 @@ public class Polygon {
                 return;
             }
         }
-    }
-
-    public void FlipMeshTriangle()
-    {
-        int temp = mli_meshTriangleVertices[1];
-        mli_meshTriangleVertices[1] = mli_meshTriangleVertices[2];
-        mli_meshTriangleVertices[2] = temp;
     }
 }

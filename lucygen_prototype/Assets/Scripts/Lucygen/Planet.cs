@@ -69,16 +69,17 @@ public class Planet : MonoBehaviour {
 
             m_perlin = new Perlin(i_perlinRepetitions);
 
-            float unscaledPolyHeight = (float)m_perlin.OctavePerlin(
-                     xCoord,
-                     yCoord,
-                     zCoord,
-                     i_perlinOctaves,
-                     d_perlinPersistence,
-                     d_perlinAmplitude,
-                     d_perlinFrequency,
-                     d_perlinLacunarity
-                 );
+            float unscaledPolyHeight = (float)m_perlin.OctavePerlin
+            (
+                xCoord,
+                yCoord,
+                zCoord,
+                i_perlinOctaves,
+                d_perlinPersistence,
+                d_perlinAmplitude,
+                d_perlinFrequency,
+                d_perlinLacunarity
+            );
 
             potentialGreatestPolyHeight = unscaledPolyHeight * d_scalingFactor;
             potentialLeastPolyHeight = unscaledPolyHeight * d_scalingFactor;
@@ -95,19 +96,23 @@ public class Planet : MonoBehaviour {
             EventLog.Add("Scaled perlin height : " + scaledPolyHeight);
         }
 
-        for (int i = 0; i < heightMap.Length; i++)
+        /*for (int i = 0; i < heightMap.Length; i++)
         {
             PolygonSet set = new PolygonSet();
             set.Add(ml_polygonSet[i]);
-            InsetPolygonSet(set, 0.1f);
+            //InsetPolygonSet(set, 0.1f);
             ExtrudePolygonSet(set, (float)heightMap[i]);
-            InsetPolygonSet(set, 1f);
-        }
+            //InsetPolygonSet(set, 1f);
+        }*/
 
-        EnlargePoints(ml_vertices, i_size);
+        ExtrudeRandomPolygons(2, ml_polygonSet, 0, 1);
 
-        m_mesh = RebuildMesh(ml_vertices, ml_polygonSet);
+        //EnlargePoints(ml_vertices, i_size);
 
+        RebuildMesh(ml_polygonSet, ml_vertices);
+
+        EventLog.Add("TRIANGLE VERTEX ORDER");
+        EventLog.Add("----------------------");
         foreach (int triangle in m_mesh.triangles)
         {
             EventLog.Add(triangle.ToString());
@@ -115,9 +120,9 @@ public class Planet : MonoBehaviour {
 
         EventLog.Add("MESH STATISTICS");
         EventLog.Add("Total Number of Polys: " + ml_polygonSet.Count);
-        EventLog.Add("Triangles array length: " + m_mesh.triangles.Length);
-        EventLog.Add("Vertices array length: " + m_mesh.vertices.Length);
-        EventLog.Add("Normals array length: " + m_mesh.normals.Length);
+        EventLog.Add("Mesh triangles array length: " + m_mesh.triangles.Length);
+        EventLog.Add("Mesh vertices array length: " + m_mesh.vertices.Length);
+        EventLog.Add("Mesh normals array length: " + m_mesh.normals.Length);
         EventLog.Add("Greatest poly height: " + md_greatestPolyHeight);
 
         EventLog.WriteFile();
@@ -130,7 +135,44 @@ public class Planet : MonoBehaviour {
     }
 
 
+
     //HELPER METHODS
+
+    private void ExtrudeRandomPolygons(int numPolygons, PolygonSet polygons, float minHeight, float maxHeight)
+    {
+        System.Random random = new System.Random();
+
+        PolygonSet extrudedPolygons = new PolygonSet();
+        extrudedPolygons.Add(polygons[random.Next(0, polygons.Count - 1)]);
+
+        extrudedPolygons = GetRandomClusterSet(numPolygons, extrudedPolygons.Count, extrudedPolygons, extrudedPolygons[0]);
+
+        ExtrudePolygonSet(extrudedPolygons, (float)(random.NextDouble() * (maxHeight - minHeight) + minHeight));
+        InsetPolygonSet(extrudedPolygons, 1f);
+    }
+
+    private PolygonSet GetRandomClusterSet(int maxNumPolygons, int currentNumPolygons, PolygonSet polygons, Polygon currentPolygon)
+    {
+        if (currentNumPolygons == maxNumPolygons)
+        {
+            return polygons;
+        }
+        else
+        {
+            System.Random random = new System.Random();
+
+            Polygon newPolygon = currentPolygon.ml_neighborPolygons[random.Next(0, 2)];
+
+            while (polygons.Contains(newPolygon))
+            {
+                newPolygon = currentPolygon.ml_neighborPolygons[random.Next(0, 2)];
+            }
+
+            polygons.Add(newPolygon);
+
+            return GetRandomClusterSet(maxNumPolygons, currentNumPolygons + 1, polygons, newPolygon);
+        }
+    }
 
     private double[] GetRandomDoubles(int size)
     {
@@ -306,7 +348,7 @@ public class Planet : MonoBehaviour {
 
         foreach (int oldVert in oldVerts)
         {
-            Vector3 clonedVert = ml_vertices[oldVert];
+            Vector3 clonedVert = new Vector3(ml_vertices[oldVert].x, ml_vertices[oldVert].y, ml_vertices[oldVert].z);
             result.Add(ml_vertices.Count);
             ml_vertices.Add(clonedVert);
         }
@@ -351,12 +393,6 @@ public class Planet : MonoBehaviour {
             Polygon stitchPoly2 = new Polygon(oldEdge.mli_sharedVertices[1],
                                               newEdge.mli_sharedVertices[1],
                                               newEdge.mli_sharedVertices[0]);
-            
-            if (i == 1)
-            {
-                stitchPoly1.FlipMeshTriangle();
-                stitchPoly2.FlipMeshTriangle();
-            }
 
             oldEdge.m_innerPolygon.ReplaceNeighbor(oldEdge.m_outerPolygon, stitchPoly2);
             oldEdge.m_outerPolygon.ReplaceNeighbor(oldEdge.m_innerPolygon, stitchPoly1);
@@ -372,6 +408,7 @@ public class Planet : MonoBehaviour {
             for (int i = 0; i < 3; i++)
             {
                 int vertID = poly.mli_vertices[i];
+
                 if (!oldVertices.Contains(vertID))
                     continue;
 
@@ -381,68 +418,7 @@ public class Planet : MonoBehaviour {
         }
     }
 
-    /*private void StitchPolygons(PolygonSet polys)
-    {
-        EdgeSet oldEdges = polys.CreateEdgeSet();
-
-        List<int> oldVertices = oldEdges.GetUniqueVertices();
-
-        List<int> newVertices = CloneVertices(oldVertices);
-
-        EdgeSet newEdges = oldEdges.Clone();
-
-        for (int i = 0; i < oldEdges.Count; i++)
-        {
-            Edge oldEdge = oldEdges[i];
-            Edge newEdge = newEdges[i];
-
-            //Make sure that the vertices in newEdge
-            //are the ones we recently cloned, instead
-            //of the old vertices.
-
-            for (int j = 0; j < 2; j++)
-            {
-                int oldVertex = oldEdge.mli_sharedVertices[j];
-                int index = oldVertices.IndexOf(oldVertex);
-                newEdge.mli_sharedVertices[j] = newVertices[index];
-            }
-
-            //Create new polys along the stitched edge. These
-            //will connect the original poly to its former neighbor.
-
-            Polygon stitchPoly1 = new Polygon(oldEdge.mli_sharedVertices[0],
-                                              oldEdge.mli_sharedVertices[1],
-                                              newEdge.mli_sharedVertices[0]);
-
-            Polygon stitchPoly2 = new Polygon(oldEdge.mli_sharedVertices[1],
-                                              newEdge.mli_sharedVertices[1],
-                                              newEdge.mli_sharedVertices[0]);
-
-
-            oldEdge.m_innerPolygon.ReplaceNeighbor(oldEdge.m_outerPolygon, stitchPoly2);
-            oldEdge.m_outerPolygon.ReplaceNeighbor(oldEdge.m_innerPolygon, stitchPoly1);
-
-            ml_polygonSet.Add(stitchPoly1);
-            ml_polygonSet.Add(stitchPoly2);
-        }
-
-        //Swap to the new vertices on the inner polys.
-
-        foreach (Polygon poly in polys)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                int vertID = poly.mli_vertices[i];
-                if (!oldVertices.Contains(vertID))
-                    continue;
-
-                int vertIndex = oldVertices.IndexOf(vertID);
-                poly.mli_vertices[i] = newVertices[vertIndex];
-            }
-        }
-    }*/
-
-    private PolygonSet CreateHexSet(Polygon poly)
+    private PolygonSet GetHexSet(Polygon poly)
     {
         PolygonSet result = new PolygonSet();
         Polygon p1 = ml_polygonSet[0];
@@ -564,65 +540,27 @@ public class Planet : MonoBehaviour {
         return points;
     }
 
-    private Mesh RebuildMesh(List<Vector3> verts, List<Polygon> polys)
+    private void RebuildMesh(PolygonSet polygons, List<Vector3> vertices)
     {
-        Mesh result = GetComponent<MeshFilter>().mesh = m_mesh = new Mesh();
+        GetComponent<MeshFilter>().mesh = m_mesh = new Mesh();
 
-        result.vertices = verts.ToArray();
-        result.triangles = GetPolygonTriangles(polys);
+        List<int> triangles = new List<int>();
+
+        foreach (Polygon poly in polygons)
+        {
+            foreach (int vertexIndex in poly.mli_vertices)
+            {
+                triangles.Add(vertexIndex);
+            }
+        }
+
+        m_mesh.vertices = vertices.ToArray();
+        m_mesh.triangles = triangles.ToArray();
+
         m_mesh.RecalculateBounds();
         m_mesh.RecalculateNormals();
         m_mesh.RecalculateTangents();
+
         GetComponent<MeshCollider>().sharedMesh = m_mesh;
-
-        return result;
-    }
-
-    //takes the indices stored in each polygon and copies them, in order, into a list of triangle points
-    private int[] GetPolygonTriangles(List<Polygon> polygons)
-    {
-        int[] result = new int[polygons.Count * 3];
-
-        for (int i = 0; i < result.Length;)
-        {
-            for (int j = 0; j < polygons.Count; j++)
-            {
-                for (int k = 0; k < polygons[j].mli_vertices.Count; k++)
-                {
-                    result[i++] = polygons[j].mli_meshTriangleVertices[k];
-                }
-            }
-        }
-
-        return result;
-
-        //Need to determine why drawing the verts in order makes jacked up verts
-        /*
-        for (int i = 0; i < m_polygons.Count; i++)
-        {
-            for (int j = 0; j < m_polygons[i].m_vertices.Count; j++)
-            {
-                for (int k = 0; k < 3; k++)
-                {
-                    result[i] = m_polygons[i].m_vertices[k];
-                }
-            }
-        }
-        */
-
-        /*int[] result = new int[polygons.Count * 3];
-
-        for (int i = 0; i < polygons.Count; i++)
-        {
-            for (int j = 0; j < polygons.Count; j++)
-            {
-                for (int k = 0; k < 3; k++)
-                {
-                    result[i] = polygons[j].mli_meshTriangleVertices[k];
-                }
-            }
-        }
-
-        return result;*/
     }
 }

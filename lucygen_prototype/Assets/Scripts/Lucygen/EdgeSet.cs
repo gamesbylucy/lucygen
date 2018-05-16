@@ -9,7 +9,12 @@ public class EdgeSet : List<Edge> {
     {
         EdgeSet clone = new EdgeSet();
         foreach (Edge edge in this)
-            clone.Add(edge.Clone());
+        {
+            Edge cloneEdge = new Edge(edge.m_innerPolygon, edge.m_outerPolygon);
+            cloneEdge.mli_sharedVertices[0] = edge.mli_sharedVertices[0];
+            cloneEdge.mli_sharedVertices[1] = edge.mli_sharedVertices[1];
+            clone.Add(cloneEdge);
+        }
         return clone;
     }
 

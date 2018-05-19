@@ -15,7 +15,7 @@ public class Polygon {
     }
 
     //determines that this polygon is a neighbor of the arg if the polys have
-    //more than 2 shared vertices
+    //at least 2 shared vertices
     public bool IsNeighborOf(Polygon potentialNeighbor)
     {
         bool result = false;
